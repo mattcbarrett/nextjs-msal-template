@@ -40,7 +40,9 @@ export const middleware = async (request: NextRequest) => {
   } catch (err) {
     if (err instanceof joseErrors.JWTExpired) {
       if (err.code === 'ERR_JWT_EXPIRED') {
-        
+        //Log to console
+        console.log('JWT expired, refreshing')
+
         //Get the user's cached tokens
         //See: https://learn.microsoft.com/en-us/entra/identity-platform/msal-acquire-cache-tokens
         const tokenCache = msalInstance.getTokenCache()
@@ -61,6 +63,7 @@ export const middleware = async (request: NextRequest) => {
         const response = await msalInstance.acquireTokenSilent(refreshRequest)
 
         //Set cookie and continue
+        //Need to add the username cookie here too
         const res = NextResponse.next()
         res.cookies.set('idToken', response.idToken)
         return res
