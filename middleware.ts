@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { createRemoteJWKSet, jwtVerify, errors as joseErrors } from "jose"
+import { createRemoteJWKSet, jwtVerify, decodeJwt, errors as joseErrors } from "jose"
 import { msalInstance } from "./app/msalInstance"
 
 //Fetch public keys from JWKS url
@@ -25,18 +25,15 @@ export const middleware = async (request: NextRequest) => {
     if (jwt) {
         const verifyResult = await jwtVerify(jwt.value, JWKS, { issuer: process.env.MSAL_AUTHORITY + '/v2.0' })
 
-      //If it verifies, pull their uername from the token, store in cookie, and continue
+      //If it verifies, log it and continue
       if (verifyResult) {
         const username = verifyResult.payload.preferred_username
         console.log(`Verified JWT for: ${username}`)
-        
-        const response = NextResponse.next()
-        response.cookies.set('username', username as string)
-        return response
+        return NextResponse.next()
 
-      //If it doesn't verify, return the below error
       }
     }
+  //If it doesn't verify, return the below error
   } catch (err) {
     if (err instanceof joseErrors.JWTExpired) {
       if (err.code === 'ERR_JWT_EXPIRED') {
@@ -59,13 +56,16 @@ export const middleware = async (request: NextRequest) => {
           account: accounts[0]
         }
 
-        //Request the new token
+        //Request the new token & decode it (but don't verify it, it's probably valid since we just retrieved it from Azure...)
         const response = await msalInstance.acquireTokenSilent(refreshRequest)
+        const jwt = decodeJwt(response.idToken)
+        const username = jwt.preferred_username
 
         //Set cookie and continue
         //Need to add the username cookie here too
         const res = NextResponse.next()
         res.cookies.set('idToken', response.idToken)
+        res.cookies.set('username', username as string)
         return res
 
       }
