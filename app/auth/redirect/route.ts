@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { AuthorizationCodeRequest } from "@azure/msal-node"
 import { msalInstance } from "@/app/msalInstance"
+import { decodeJwt } from "jose"
 
 //Need to pull these from ENV with a provision for development vs production
 let redirectUri = process.env.REDIRECT_URI_PROD || ""
@@ -33,10 +34,14 @@ export const GET = async (request: NextRequest) => {
 
     //Retrieve the token
     const response = await msalInstance.acquireTokenByCode(tokenRequest)
+    const jwt = decodeJwt(response.idToken)
+    const username = jwt.preferred_username
 
     //Redirect the user and set JWT in a cookie on the response
     const res = NextResponse.redirect(redirectRoute)
     res.cookies.set('idToken', response.idToken)
+    res.cookies.set('username', username as string)
+
     return res
 
   } catch (err) {
