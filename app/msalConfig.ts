@@ -1,4 +1,4 @@
-import { Configuration } from "@azure/msal-node"
+import { Configuration, LogLevel } from "@azure/msal-node"
 
 export const msalConfig: Configuration = {
   auth: {
@@ -7,29 +7,30 @@ export const msalConfig: Configuration = {
       clientSecret: process.env.MSAL_CLIENT_SECRET || ""
   },
   system: {
-      loggerOptions: {
-          loggerCallback(loglevel, message, containsPii) {
-            if (!containsPii) {
-              if (loglevel === 0) {
-                console.error(message)
-              }
-              if (loglevel === 1) {
-                console.warn(message)
-              }
-              if (loglevel === 2) {
-                console.info(message)
-              }
-              if (loglevel === 3) {
-                console.log(message)
-              }
-            } else {
+    loggerOptions: {
+        loggerCallback: (level: {}, message: string, containsPii: boolean) => {
+          //If there's pii, don't log, just return
+          if (containsPii) {
+            return
+          }
+          //Log based on message level
+          switch (level) {
+            case LogLevel.Error:
+              console.error(message)
               return
-            }
-          },
-          piiLoggingEnabled: false,
-          logLevel: 0,
-      },
-      proxyUrl: "",
-      customAgentOptions: {},
+            case LogLevel.Info:
+              console.info(message)
+              return
+            case LogLevel.Verbose:
+              console.debug(message)
+              return
+            case LogLevel.Warning:
+              console.warn(message)
+              return
+            default:
+              return
+          }
+        }
+    }
   }
 }
