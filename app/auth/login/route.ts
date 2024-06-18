@@ -5,6 +5,14 @@ import { msalInstance } from "@/app/msalInstance"
 
 const cryptoProvider = new CryptoProvider()
 
+// Set redirect for production
+let redirectUri = process.env.MSAL_REDIRECT_URI_PROD || ''
+
+// Set redirect for development based on NODE_ENV
+if (process.env.NODE_ENV === 'development') {
+  redirectUri = process.env.MSAL_REDIRECT_URI_DEV || ''
+}
+
 export const GET = async () => {
   try {
     //Generate verifier and challenge codes
@@ -13,7 +21,7 @@ export const GET = async () => {
     //Instantiate an object to pass to Azure AD
     const authCodeUrlParams: AuthorizationUrlRequest = {
       scopes: ['user.read'],
-      redirectUri: 'http://localhost:3000/auth/redirect',
+      redirectUri: redirectUri,
       codeChallenge: challenge,
       codeChallengeMethod: 'S256'
     }
