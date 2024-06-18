@@ -5,7 +5,7 @@ type Props = {}
 
 const Success = (props: Props) => {
   const usernameCookie = cookies().get('username')
-  const username = usernameCookie ? usernameCookie.value : 'Email not found'
+  const username = usernameCookie ? usernameCookie.value : 'username not found'
 
   return (
   <div className="flex items-center justify-center min-h-screen bg-zinc-900">
