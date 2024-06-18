@@ -3,11 +3,12 @@ import { AuthorizationCodeRequest } from "@azure/msal-node"
 import { msalInstance } from "@/app/msalInstance"
 import { decodeJwt } from "jose"
 
-//Need to pull these from ENV with a provision for development vs production
-let redirectUri = process.env.REDIRECT_URI_PROD || ""
+// Set redirects for production
+let redirectUri = process.env.MSAL_REDIRECT_URI_PROD || ""
 let redirectRoute = process.env.LOGIN_REDIRECT_ROUTE_PROD || ""
 
-if (process.env.NODE_ENV == "development") {
+// Set redirects for development based on NODE_ENV
+if (process.env.NODE_ENV == 'development') {
   redirectUri = process.env.MSAL_REDIRECT_URI_DEV || ""
   redirectRoute = process.env.LOGIN_REDIRECT_ROUTE_DEV || ""
 }
