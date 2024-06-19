@@ -8,7 +8,7 @@ Tailwind CSS theming is purposefully minimal, expand on it or swap in your own p
 
 ## Getting Started
 
-1. Register an Enterprise Application in the Azure portal. This also creates an App Registration in Azure.
+1. Register an Enterprise Application in the Azure portal. This will also create an App Registration in Azure automatically.
 2. Copy the Application ID into .env.local.template under the MSAL_CLIENT_ID variable.
 3. Open the App Registration and create a client secret. Paste it under the MSAL_CLIENT_SECRET variable.
 4. Copy your Tenant ID and paste it onto the end of the MSAL_AUTHORITY variable. The value should be: https://login.microsoftonline.com/your_tenant_id_here.
